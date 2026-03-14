@@ -1,0 +1,77 @@
+{
+  "navigation": {
+    "dashboard": "डैशबोर्ड",
+    "detect": "फसल पहचानें",
+    "weather": "मौसम",
+    "stores": "कृषि स्टोर",
+    "history": "इतिहास",
+    "logout": "लॉगआउट"
+  },
+  "landing": {
+    "title": "माय क्रॉप सेज",
+    "subtitle": "AI-आधारित कृषि सहायक",
+    "description": "फसल रोग पहचानें, मौसम सलाह पाएं और पास के कृषि स्टोर खोजें",
+    "getStarted": "शुरू करें",
+    "learnMore": "अधिक जानें"
+  },
+  "auth": {
+    "login": "लॉगिन",
+    "register": "पंजीकरण",
+    "name": "पूरा नाम",
+    "phone": "फोन नंबर",
+    "password": "पासवर्ड",
+    "loginButton": "लॉगिन करें",
+    "registerButton": "खाता बनाएं",
+    "alreadyHaveAccount": "पहले से खाता है?",
+    "noAccount": "खाता नहीं है?",
+    "phoneRequired": "फोन नंबर आवश्यक है",
+    "passwordRequired": "पासवर्ड आवश्यक है"
+  },
+  "detect": {
+    "title": "फसल समस्या पहचानें",
+    "uploadLabel": "अपनी फसल की फोटो अपलोड करें",
+    "uploadHint": "यहां क्लिक करें या इमेज खींचकर छोड़ें",
+    "textLabel": "फसल की समस्या बताएं",
+    "textPlaceholder": "जैसे: मेरे टमाटर के पत्ते पीले हो रहे हैं...",
+    "voiceLabel": "अपनी समस्या बोलें",
+    "voiceStart": "बोलना शुरू करें",
+    "voiceStop": "रोकें",
+    "analyzeButton": "जांच करें",
+    "analyzing": "फसल की जांच हो रही है..."
+  },
+  "result": {
+    "disease": "पहचाना गया रोग",
+    "confidence": "सटीकता",
+    "treatment": "अनुशंसित उपचार",
+    "prevention": "बचाव के उपाय",
+    "noDisease": "कोई रोग नहीं मिला। आपकी फसल स्वस्थ दिखती है!"
+  },
+  "weather": {
+    "title": "मौसम जानकारी",
+    "current": "वर्तमान मौसम",
+    "advice": "कृषि सलाह",
+    "humidity": "नमी",
+    "wind": "हवा की गति",
+    "loading": "मौसम लोड हो रहा है..."
+  },
+  "stores": {
+    "title": "पास के कृषि स्टोर",
+    "finding": "पास के स्टोर खोजे जा रहे हैं...",
+    "noStores": "पास में कोई स्टोर नहीं मिला",
+    "directions": "रास्ता देखें"
+  },
+  "history": {
+    "title": "जांच इतिहास",
+    "empty": "अभी तक कोई जांच नहीं। पहली फसल जांचें!",
+    "date": "तारीख",
+    "disease": "रोग",
+    "confidence": "सटीकता"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "कुछ गलत हुआ। कृपया फिर कोशिश करें।",
+    "save": "सेव करें",
+    "cancel": "रद्द करें",
+    "back": "वापस"
+  }
+}

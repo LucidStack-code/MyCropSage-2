@@ -1,0 +1,77 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "detect": "Detect Crop",
+    "weather": "Weather",
+    "stores": "Agro Stores",
+    "history": "History",
+    "logout": "Logout"
+  },
+  "landing": {
+    "title": "MyCropSage",
+    "subtitle": "AI-Powered Farming Assistant",
+    "description": "Detect crop diseases, get weather advice, and find agro stores near you",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "name": "Full Name",
+    "phone": "Phone Number",
+    "password": "Password",
+    "loginButton": "Login",
+    "registerButton": "Create Account",
+    "alreadyHaveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "phoneRequired": "Phone number is required",
+    "passwordRequired": "Password is required"
+  },
+  "detect": {
+    "title": "Detect Crop Issue",
+    "uploadLabel": "Upload a photo of your crop",
+    "uploadHint": "Click or drag and drop an image here",
+    "textLabel": "Describe your crop problem",
+    "textPlaceholder": "e.g. My tomato leaves are turning yellow...",
+    "voiceLabel": "Speak your problem",
+    "voiceStart": "Start Speaking",
+    "voiceStop": "Stop",
+    "analyzeButton": "Analyze",
+    "analyzing": "Analyzing your crop..."
+  },
+  "result": {
+    "disease": "Disease Detected",
+    "confidence": "Confidence",
+    "treatment": "Recommended Treatment",
+    "prevention": "Prevention Tips",
+    "noDisease": "No disease detected. Your crop looks healthy!"
+  },
+  "weather": {
+    "title": "Weather Insights",
+    "current": "Current Weather",
+    "advice": "Farming Advice",
+    "humidity": "Humidity",
+    "wind": "Wind Speed",
+    "loading": "Loading weather..."
+  },
+  "stores": {
+    "title": "Nearby Agro Stores",
+    "finding": "Finding stores near you...",
+    "noStores": "No stores found nearby",
+    "directions": "Get Directions"
+  },
+  "history": {
+    "title": "Detection History",
+    "empty": "No detections yet. Go detect your first crop!",
+    "date": "Date",
+    "disease": "Disease",
+    "confidence": "Confidence"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back"
+  }
+}
