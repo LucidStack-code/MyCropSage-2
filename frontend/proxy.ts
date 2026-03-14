@@ -3,8 +3,8 @@ import { NextRequest } from 'next/server'
 
 const intlMiddleware = createMiddleware({
   locales: ['en', 'hi', 'mr', 'te', 'ta'],
-  defaultLocale: 'hi',
-  localeDetection: true,
+  defaultLocale: 'en',
+  localeDetection: false,
   localePrefix: 'always'
 })
 

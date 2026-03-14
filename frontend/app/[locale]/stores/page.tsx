@@ -1,20 +1,22 @@
-import { useTranslations } from 'next-intl'
 import StoreMap from '@/components/StoreMap'
+import Navbar from '@/components/Navbar'
+import { getTranslations } from 'next-intl/server'
 
-export default function StoresPage({
-  params: { locale }
-}: {
-  params: { locale: string }
-}) {
-  const t = useTranslations('stores')
+export default async function StoresPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'stores' })
+
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-green-700 mb-6">
-          🏪 {t('title')}
-        </h1>
+    <>
+      <Navbar locale={locale} />
+      <main className="page" style={{ maxWidth: 900 }}>
+        <div className="au1" style={{ marginBottom: 40 }}>
+          <div className="eyebrow">Store Finder</div>
+          <h1 className="syne page-title">{t('title')}</h1>
+          <p className="page-subtitle">Find pesticides, seeds and fertilizers near you</p>
+        </div>
         <StoreMap locale={locale} />
-      </div>
-    </main>
+      </main>
+    </>
   )
 }

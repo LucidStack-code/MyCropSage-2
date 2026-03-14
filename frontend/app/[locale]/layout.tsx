@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import '../globals.css'
+import '../global-dark.css'
 
 const locales = ['en', 'hi', 'mr', 'te', 'ta']
 
