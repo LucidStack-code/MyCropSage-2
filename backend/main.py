@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from modules.detection.routes import router as detect_router
+from modules.speech.routes import router as speech_router
 from ml_model.loader import load_model_on_startup
 import os
 
@@ -22,6 +23,7 @@ async def startup():
     load_model_on_startup()
 
 app.include_router(detect_router, prefix="/detect")
+app.include_router(speech_router, prefix="/speech")
 
 @app.get("/health")
 def health():
