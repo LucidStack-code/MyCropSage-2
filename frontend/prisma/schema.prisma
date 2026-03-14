@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String      @id @default(cuid())
+  name            String
+  phone           String      @unique
+  preferredLocale String      @default("hi")
+  passwordHash    String
+  createdAt       DateTime    @default(now())
+  detections      Detection[]
+  sessions        Session[]
+}
+
+model Detection {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  imageUrl    String
+  diseaseName String
+  confidence  Float
+  treatment   String
+  prevention  String
+  lat         Float?
+  lon         Float?
+  locale      String   @default("hi")
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tokenHash String   @unique
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
