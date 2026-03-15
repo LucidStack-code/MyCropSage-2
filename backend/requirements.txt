@@ -3,7 +3,7 @@ uvicorn==0.30.0
 python-dotenv==1.0.1
 python-multipart==0.0.9
 torch==2.9.0
-torchvision==0.21.0
+torchvision==0.24.0
 pillow==10.3.0
 openai-whisper==20231117
 gTTS==2.5.1
