@@ -11,13 +11,4 @@ export default defineConfig({
   datasource: {
     url: DATABASE_URL,
   },
-  migrate: {
-    async adapter() {
-      const { PrismaNeon } = await import('@prisma/adapter-neon')
-      const { neonConfig } = await import('@neondatabase/serverless')
-      const ws = await import('ws')
-      neonConfig.webSocketConstructor = ws.default
-      return new PrismaNeon({ connectionString: DATABASE_URL })
-    },
-  },
 })
