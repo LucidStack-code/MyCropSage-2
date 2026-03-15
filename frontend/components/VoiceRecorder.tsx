@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 
 interface VoiceRecorderProps {
@@ -9,111 +9,188 @@ interface VoiceRecorderProps {
 
 export default function VoiceRecorder({ locale, onResult }: VoiceRecorderProps) {
   const t = useTranslations('detect')
-  const [recording, setRecording] = useState(false)
+  const [listening, setListening] = useState(false)
+  const [transcript, setTranscript] = useState('')
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const chunksRef = useRef<BlobPart[]>([])
+  const [supported, setSupported] = useState(true)
+  const recognitionRef = useRef<any>(null)
 
-  const startRecording = async () => {
-    try {
-      setError('')
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const mediaRecorder = new MediaRecorder(stream)
-      mediaRecorderRef.current = mediaRecorder
-      chunksRef.current = []
+  // Map locale to BCP 47 language code
+  const LANG_CODES: Record<string, string> = {
+    en: 'en-IN',
+    hi: 'hi-IN',
+    mr: 'mr-IN',
+    te: 'te-IN',
+    ta: 'ta-IN',
+  }
 
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition =
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition
+      if (!SpeechRecognition) {
+        setSupported(false)
       }
+    }
+  }, [])
 
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' })
-        await processAudio(audioBlob)
-        stream.getTracks().forEach(track => track.stop())
+  const startListening = () => {
+    setError('')
+    setTranscript('')
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition
+
+    const recognition = new SpeechRecognition()
+    recognition.lang = LANG_CODES[locale] || 'hi-IN'
+    recognition.continuous = false
+    recognition.interimResults = true
+
+    recognition.onstart = () => setListening(true)
+
+    recognition.onresult = (event: any) => {
+      const text = Array.from(event.results)
+        .map((r: any) => r[0].transcript)
+        .join('')
+      setTranscript(text)
+    }
+
+    recognition.onend = async () => {
+      setListening(false)
+      if (transcript || recognitionRef.current?.lastTranscript) {
+        const finalText = transcript || recognitionRef.current?.lastTranscript
+        await processText(finalText)
       }
+    }
 
-      mediaRecorder.start()
-      setRecording(true)
-    } catch {
-      setError('Microphone access denied. Please allow microphone access.')
+    recognition.onerror = (e: any) => {
+      setListening(false)
+      if (e.error === 'not-allowed') {
+        setError('Microphone access denied. Please allow microphone in browser settings.')
+      } else {
+        setError(`Error: ${e.error}. Please try again.`)
+      }
+    }
+
+    recognitionRef.current = recognition
+    recognition.start()
+  }
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.lastTranscript = transcript
+      recognitionRef.current.stop()
     }
   }
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && recording) {
-      mediaRecorderRef.current.stop()
-      setRecording(false)
-      setProcessing(true)
-    }
-  }
-
-  const processAudio = async (audioBlob: Blob) => {
+  const processText = async (text: string) => {
+    if (!text.trim()) return
+    setProcessing(true)
     try {
-      // Step 1: Transcribe audio via FastAPI Whisper
-      const formData = new FormData()
-      formData.append('audio', audioBlob, 'recording.webm')
-
-      const transcribeRes = await fetch(
-        `${process.env.NEXT_PUBLIC_FASTAPI_URL || 'http://localhost:8000'}/speech/transcribe`,
-        { method: 'POST', body: formData }
-      )
-      const { text, language } = await transcribeRes.json()
-
-      // Step 2: Analyze text
       const analyzeRes = await fetch('/api/speech/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, locale }),
       })
-      const { advice } = await analyzeRes.json()
+      const data = await analyzeRes.json()
 
-      // Step 3: Get TTS audio
+      // Get TTS audio
       const ttsRes = await fetch('/api/speech/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: advice, language: locale }),
+        body: JSON.stringify({ text: data.advice, language: locale }),
       })
       const audioBuffer = await ttsRes.arrayBuffer()
       const audioUrl = URL.createObjectURL(
         new Blob([audioBuffer], { type: 'audio/mpeg' })
       )
 
-      onResult(advice, audioUrl)
+      onResult(data.advice, audioUrl)
     } catch (err) {
       setError('Processing failed. Please try again.')
-      console.error(err)
     } finally {
       setProcessing(false)
     }
   }
 
+  if (!supported) {
+    return (
+      <div style={{ textAlign: 'center', padding: 24 }}>
+        <p style={{ color: 'var(--muted)', fontSize: 14 }}>
+          Voice input is not supported in this browser.
+          Please use Chrome or Edge.
+        </p>
+        <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 8 }}>
+          You can use the text input tab instead.
+        </p>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+      <style>{`
+        @keyframes ripple {
+          0% { transform: scale(1); opacity: 0.6; }
+          100% { transform: scale(2); opacity: 0; }
+        }
+        .mic-btn { position: relative; }
+        .mic-btn.listening::before,
+        .mic-btn.listening::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          border: 2px solid #00FF87;
+          animation: ripple 1.5s ease-out infinite;
+        }
+        .mic-btn.listening::after { animation-delay: 0.75s; }
+      `}</style>
+
       <button
-        onClick={recording ? stopRecording : startRecording}
+        onClick={listening ? stopListening : startListening}
         disabled={processing}
-        className={`w-20 h-20 rounded-full text-white text-3xl transition-all shadow-lg ${
-          recording
-            ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+        className={`mic-btn ${listening ? 'listening' : ''}`}
+        style={{
+          width: 88, height: 88, borderRadius: '50%',
+          background: listening
+            ? 'rgba(255,71,87,0.15)'
             : processing
-            ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-green-600 hover:bg-green-700'
-        }`}
+            ? 'rgba(255,255,255,0.05)'
+            : 'rgba(0,255,135,0.1)',
+          border: `2px solid ${listening ? '#FF4757' : processing ? 'var(--border)' : '#00FF87'}`,
+          fontSize: 36, cursor: processing ? 'not-allowed' : 'pointer',
+          transition: 'all 0.3s',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
       >
-        {recording ? '⏹' : processing ? '⏳' : '🎤'}
+        {processing ? '⏳' : listening ? '⏹' : '🎤'}
       </button>
 
-      <p className="text-sm text-gray-500">
-        {recording
-          ? t('voiceStop') + ' — recording...'
+      <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+        {listening
+          ? `Listening in ${locale.toUpperCase()}... (click to stop)`
           : processing
-          ? 'Processing...'
-          : t('voiceStart')}
+          ? 'Processing your voice...'
+          : `Click to speak in ${locale.toUpperCase()}`}
       </p>
 
+      {transcript && (
+        <div style={{
+          background: 'rgba(0,255,135,0.06)',
+          border: '1px solid rgba(0,255,135,0.2)',
+          borderRadius: 12, padding: '12px 16px',
+          width: '100%', textAlign: 'left',
+        }}>
+          <p style={{ fontSize: 11, color: 'var(--accent)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Heard</p>
+          <p style={{ fontSize: 14, color: 'var(--text)' }}>{transcript}</p>
+        </div>
+      )}
+
       {error && (
-        <p className="text-red-500 text-sm text-center">{error}</p>
+        <p style={{ fontSize: 13, color: 'var(--danger)', textAlign: 'center' }}>{error}</p>
       )}
     </div>
   )
