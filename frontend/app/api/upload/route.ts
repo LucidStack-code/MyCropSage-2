@@ -9,36 +9,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    // Convert file to base64
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    const base64 = buffer.toString('base64')
-    const dataUri = `data:${file.type};base64,${base64}`
-
-    // Upload to Cloudinary
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME
-    const apiKey = process.env.CLOUDINARY_API_KEY
-    const apiSecret = process.env.CLOUDINARY_API_SECRET
 
-    if (!cloudName || !apiKey || !apiSecret) {
-      // Fallback — return a placeholder for testing
+    if (!cloudName || cloudName === 'your_cloud_name') {
+      // Fallback for testing without Cloudinary
       return NextResponse.json({
         url: 'https://images.pexels.com/photos/209339/pexels-photo-209339.jpeg'
       })
     }
 
-    const timestamp = Math.round(Date.now() / 1000)
-    const crypto = await import('crypto')
-    const signature = crypto
-      .createHash('sha1')
-      .update(`timestamp=${timestamp}${apiSecret}`)
-      .digest('hex')
-
+    // Use unsigned upload — no signature needed
     const uploadForm = new FormData()
-    uploadForm.append('file', dataUri)
-    uploadForm.append('api_key', apiKey)
-    uploadForm.append('timestamp', timestamp.toString())
-    uploadForm.append('signature', signature)
+    uploadForm.append('file', file)
+    uploadForm.append('upload_preset', 'mycropsage_unsigned')
     uploadForm.append('folder', 'mycropsage')
 
     const uploadRes = await fetch(
@@ -47,16 +30,17 @@ export async function POST(req: NextRequest) {
     )
 
     const uploadData = await uploadRes.json()
+    console.log('Cloudinary response:', uploadData.secure_url || uploadData.error)
 
     if (!uploadData.secure_url) {
-      throw new Error('Upload failed')
+      throw new Error(`Cloudinary: ${uploadData.error?.message || 'Upload failed'}`)
     }
 
     return NextResponse.json({ url: uploadData.secure_url })
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json(
-      { error: 'Upload failed' },
+      { error: 'Upload failed', detail: String(error) },
       { status: 500 }
     )
   }
